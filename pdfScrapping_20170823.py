@@ -12,14 +12,13 @@ aStart = ['Tipo de motor', 'Potencia nominal', 'Velocidad (nominal)', 'Tensión'
 aEnd = ['IEC-tamaño', 'kW', 'RPM', 'V']
 
 # Open file and read it
-fileName = '0004401477'
+fileName = 'HOTEL CANALEJAS'
 pdfFileObj = open(fileName + '.pdf', 'rb')
 pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
 
 # Get the total number of pages
 number_of_pages = pdfReader.getNumPages()
 print('Number of pages:', number_of_pages)
-
 
 for pageNumber in range(number_of_pages):
 	nextPage = False

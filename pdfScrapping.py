@@ -23,14 +23,15 @@ def indexFunction(word, content):
 # Function for pages, DV size and Line --------------------
 def dvFunction():
 	lookUp = 'Resumen de la unidad no.'
-	wordStart = 'Danvent'
-	wordEnd = 'Orden no.'
 	for pageNumber in range(number_of_pages):
 		pageContent = extractContent(pageNumber)
 		if lookUp in pageContent:
 			aPageStart.append(pageNumber)
 
 	for pageNumber in aPageStart:
+		# DV size
+		wordStart = 'Danvent'
+		wordEnd = 'Orden no.'
 		pageContent = extractContent(pageNumber)
 		posStart = pageContent.index(wordStart) + len(wordStart)
 		newContent = pageContent[posStart:]
@@ -42,7 +43,19 @@ def dvFunction():
 		unitFeature = newContent[:posEnd]
 		unitFeature = unitFeature.strip()
 		aDVSize.append(unitFeature)
-	aDVLine = list(range(1, len(aDVSize) + 1))
+
+		# Line
+		wordStart = 'no.'
+		wordEnd = 'Danvent'
+		posStart = pageContent.index(wordStart) + len(wordStart)
+		newContent = pageContent[posStart:]
+		if wordEnd in newContent:
+			posEnd = indexFunction(wordEnd, newContent)
+			print('Not found')
+		unitFeature = newContent[:posEnd]
+		unitFeature = unitFeature.strip()
+		aDVLine.append(unitFeature)
+
 	aPageEnd = aPageStart[1:]
 	aPageEnd.append(number_of_pages)
 	# Sanity check
@@ -203,12 +216,24 @@ def lookup_config(extList, Component, aWordStart):
 	return extList
 # ---------------------------------------------------------
 
-# Motor function ------------------------------------------
-def motorFunction(extList):
+# EC function ---------------------------------------------
+def ecFunction(extList):
 	Component = 'Motor'
-	aWordStart = ['Tipo de motor', 'Potencia nominal', 'Velocidad (nominal)', 'Tensión']
-	aWordEnd = ['IEC-tamaño', 'kW', 'RPM', 'V']
-	aWordEndOp = ['IEC-tamaño', 'kW', 'RPM', 'V']
+	aWordStart = ['Tipo de motor', 'Potencia nominal', 'Velocidad (nominal)']
+	aWordEnd = ['IEC-tamaño', 'Velocidad (nominal)', 'RPM']
+	aWordEndOp = ['IEC-tamaño', 'Velocidad (nominal)', 'RPM']
+	extList = lookup(extList, Component, aWordStart, aWordEnd, aWordEndOp)
+	print('motorFunction OK')
+	print('\n')
+	return extList
+# ---------------------------------------------------------
+
+# AC function ---------------------------------------------
+def acFunction(extList):
+	Component = 'Motor'
+	aWordStart = ['Tipos de motor', 'Potencia total', 'Velocidad (nominal)']
+	aWordEnd = ['IEC-tamaño', 'Velocidad (nominal)', 'RPM']
+	aWordEndOp = ['IEC-tamaño', 'Velocidad (nominal)', 'RPM']
 	extList = lookup(extList, Component, aWordStart, aWordEnd, aWordEndOp)
 	print('motorFunction OK')
 	print('\n')
@@ -230,9 +255,9 @@ def impellerFunction(extList):
 # Filters function ----------------------------------------
 def filtersFunction(extList):
 	Component = 'Filters'
-	aWordStart = ['Clase de filtro']
-	aWordEnd = ['Dimensión']
-	aWordEndOp = ['Dimensión']
+	aWordStart = ['Clase de filtro', 'Longitud del filtro']
+	aWordEnd = ['Dimensión', 'mm']
+	aWordEndOp = ['Dimensión', 'mm']
 	extList = lookup(extList, Component, aWordStart, aWordEnd, aWordEndOp)
 	print('filtersFunction OK')
 	print('\n')
@@ -265,6 +290,16 @@ def plateFunction(extList):
 	aWordEndOp = ['Distancia']
 	extList = lookup(extList, Component, aWordStart, aWordEnd, aWordEndOp)
 	print('plateFunction OK')
+	print('\n')
+	return extList
+# ---------------------------------------------------------
+
+# By-pass function ----------------------------------------
+def bypassFunction(extList):
+	Component = 'By-pass Dampers'
+	aWordStart = ['de bypass']
+	extList = lookup_count(extList, Component, aWordStart)
+	print('controlFunction OK')
 	print('\n')
 	return extList
 # ---------------------------------------------------------
@@ -355,10 +390,12 @@ def toExcel(df):
 # DoTheMagic ----------------------------------------------
 def doTheMagic(extList):	
 	extList = dampersFunction(extList)
+	extList = bypassFunction(extList)
 	extList = filtersFunction(extList)
 	extList = configFunction(extList)
 	extList = controlFunction(extList)
-	extList = motorFunction(extList)
+	extList = ecFunction(extList)
+	extList = acFunction(extList)
 	extList = impellerFunction(extList)
 	extList = rotFunction(extList)
 	extList = plateFunction(extList)

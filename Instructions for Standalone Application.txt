@@ -1,0 +1,6 @@
+1. Open cmd
+2. Copy script's folder directory ("C:\Users\d645daar\Documents\COSAS\Mini-Projects\DataScrapping")
+3. Type: cd C:\Users\d645daar\Documents\COSAS\Mini-Projects\DataScrapping
+4. Check you're in the right directory
+5. Type "pyinstaller -F your_script.py"
+6. Check dist folder and test it

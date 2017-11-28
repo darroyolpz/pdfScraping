@@ -1,4 +1,4 @@
-# New Format! 14-11-2017
+# Release date: 27-11-2017
 
 import PyPDF2, glob, os, csv, sys
 import pandas as pd
@@ -421,20 +421,56 @@ def impellerFunction(extList):
 # Inverter function ---------------------------------------
 def inverterFunction(extList):
 	Component = 'Inverter'
-	aWordStart = ['Unidad de impulsión., [', 'Variador de frecuencia IP']
-	aWordEnd = [']', 'montado']
+	aWordStart = ['., [', 'A', 'Variador de frecuencia IP']
+	aWordEnd = [']', 'us', 'montado']
 	extList = lookup(extList, Component, aWordStart, aWordEnd)
+
+	# Handling two or more inverters
+	for i in extList:
+		try:
+			type = i[3]
+			if type == Component:
+				# Swap the position of num_inverters[5] and IP[6]
+				i[5], i[6] = i[6], i[5]
+				# Check how many inverters are in that motor
+				num_inverters = int(i[6]) - 1
+				# Remove the num_inverters to clean the item
+				i.pop(6)
+				# Add as many inverters as stated in the datasheet
+				for j in range(num_inverters):
+					extList.append(i)
+		except:
+			continue
+
 	print('inverterFunction OK')
 	print('\n')
 	return extList
 # ---------------------------------------------------------
 
-# Inverter for PM ---------------------------------------..
+# Inverter for PM or several motors -----------------------
 def inverterPMFunction(extList):
 	Component = 'Inverter'
-	aWordStart = ['frecuencia cableado de fábrica.  (', 'Variador de frecuencia IP']
-	aWordEnd = [' Amp)', 'montado']
+	aWordStart = ['de fábrica.  (', ')', 'Variador de frecuencia IP']
+	aWordEnd = [' Amp', 'us', 'montado']
 	extList = lookup(extList, Component, aWordStart, aWordEnd)
+
+	# Handling two or more inverters
+	for i in extList:
+		try:
+			type = i[3]
+			if type == Component:
+				# Swap the position of num_inverters[5] and IP[6]
+				i[5], i[6] = i[6], i[5]
+				# Check how many inverters are in that motor
+				num_inverters = int(i[6]) - 1
+				# Remove the num_inverters to clean the item
+				i.pop(6)
+				# Add as many inverters as stated in the datasheet
+				for j in range(num_inverters):
+					extList.append(i)
+		except:
+			continue
+
 	print('inverterPMFunction OK')
 	print('\n')
 	return extList
@@ -668,6 +704,7 @@ def purchasing(extList, newList):
 
 # TestTheMagic --------------------------------------------
 def testTheMagic(extList, newList):
+	extList = inverterFunction(extList)
 	extList = filtersFunction(extList)
 	newList = configFunction(newList)	
 # ---------------------------------------------------------		
